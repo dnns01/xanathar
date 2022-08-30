@@ -5,7 +5,8 @@ import json
 import os
 import uuid
 
-import discord
+from discord import app_commands, errors, Embed, File, Interaction
+from discord.app_commands import Choice
 from discord.ext import tasks, commands
 
 import utils
@@ -52,7 +53,8 @@ def get_ics_file(title, date_time, reminder, recurring):
     return ics_file
 
 
-class Appointments(commands.Cog):
+@app_commands.guild_only()
+class Appointments(commands.GroupCog, name="appointments", description="Handle Appointments in Channels"):
     def __init__(self, bot):
         self.bot = bot
         self.fmt = os.getenv("DISCORD_DATE_TIME_FORMAT")
@@ -84,15 +86,15 @@ class Appointments(commands.Cog):
                         message = await channel.fetch_message(int(message_id))
                         reactions = message.reactions
                         diff = int(round(((date_time - now).total_seconds() / 60), 0))
-                        answer = f"Benachrichtigung!\nDer Termin \"{appointment['title']}\" ist "
+                        answer = f"Benachrichtigung!\nDer Termin \"{appointment['title']}\" startet"
 
                         if appointment["reminder"] > 0 and diff > 0:
-                            answer += f"startet <t:{int(date_time.timestamp())}:R>."
+                            answer += f"<t:{int(date_time.timestamp())}:R>."
                             if (reminder := appointment.get("reminder")) and appointment.get("recurring"):
                                 appointment["original_reminder"] = str(reminder)
                             appointment["reminder"] = 0
                         else:
-                            answer += f"jetzt fällig. :loudspeaker: "
+                            answer += f"jetzt!!! :loudspeaker: "
                             delete.append(message_id)
 
                         answer += f"\n"
@@ -106,7 +108,7 @@ class Appointments(commands.Cog):
 
                         if str(message.id) in delete:
                             await message.delete()
-                    except discord.errors.NotFound:
+                    except errors.NotFound:
                         delete.append(message_id)
 
             if len(delete) > 0:
@@ -135,9 +137,16 @@ class Appointments(commands.Cog):
     async def before_timer(self):
         await asyncio.sleep(60 - datetime.datetime.now().second)
 
-    @commands.command(name="add-appointment")
-    async def cmd_add_appointment(self, ctx, date, time, reminder, title, recurring: int = None):
-        await self.add_appointment(ctx.channel, ctx.author.id, date, time, reminder, title, recurring)
+    @app_commands.command(name="add", description="Füge dem Kanal einen neuen Termin hinzu.")
+    @app_commands.describe(date="Tag des Termins", time="Uhrzeit des Termins",
+                           reminder="Wie viele Minuten bevor der Termin startet, soll eine Erinnerung verschickt werden?",
+                           title="Titel des Termins",
+                           recurring="In welchem Intervall (in Tagen) soll der Termin wiederholt werden?")
+    async def cmd_add_appointment(self, interaction: Interaction, date: str, time: str, reminder: int, title: str,
+                                  recurring: int = None):
+        """ Add an appointment to a channel """
+        await self.add_appointment(interaction.channel, interaction.user.id, date, time, reminder, title, recurring)
+        await interaction.response.send_message("Termin erfolgreich erstellt!", ephemeral=True)
 
     async def add_appointment(self, channel, author_id, date, time, reminder, title, recurring: int = None):
         """ Add appointment to a channel """
@@ -148,17 +157,11 @@ class Appointments(commands.Cog):
             await channel.send("Fehler! Ungültiges Datums und/oder Zeit Format!")
             return
 
-        if not utils.is_valid_time(reminder):
-            await channel.send("Fehler! Benachrichtigung in ungültigem Format!")
-            return
-        else:
-            reminder = utils.to_minutes(reminder)
-
-        embed = discord.Embed(title="Neuer Termin hinzugefügt!",
-                              description=f"Wenn du eine Benachrichtigung zum Beginn des Termins"
-                                          f"{f', sowie {reminder} Minuten vorher, ' if reminder > 0 else f''} "
-                                          f"erhalten möchtest, reagiere mit :thumbsup: auf diese Nachricht.",
-                              color=19607)
+        embed = Embed(title="Neuer Termin hinzugefügt!",
+                      description=f"Wenn du eine Benachrichtigung zum Beginn des Termins"
+                                  f"{f', sowie {reminder} Minuten vorher, ' if reminder > 0 else f''} "
+                                  f"erhalten möchtest, reagiere mit :thumbsup: auf diese Nachricht.",
+                      color=19607)
 
         embed.add_field(name="Titel", value=title, inline=False)
         embed.add_field(name="Startzeitpunkt", value=f"{date_time.strftime(self.fmt)}", inline=False)
@@ -167,8 +170,8 @@ class Appointments(commands.Cog):
         if recurring:
             embed.add_field(name="Wiederholung", value=f"Alle {recurring} Tage", inline=False)
 
-        message = await channel.send(embed=embed, file=discord.File(get_ics_file(title, date_time, reminder, recurring),
-                                                                    filename=f"{title}.ics"))
+        message = await channel.send(embed=embed, file=File(get_ics_file(title, date_time, reminder, recurring),
+                                                            filename=f"{title}.ics"))
         await message.add_reaction("👍")
         await message.add_reaction("🗑️")
 
@@ -195,7 +198,7 @@ class Appointments(commands.Cog):
                     message = await ctx.channel.fetch_message(int(message_id))
                     answer += f'{appointment["date_time"]}: {appointment["title"]} => ' \
                               f'{message.jump_url}\n'
-                except discord.errors.NotFound:
+                except errors.NotFound:
                     delete.append(message_id)
 
             if len(delete) > 0:
@@ -234,3 +237,7 @@ class Appointments(commands.Cog):
             message = await channel.fetch_message(payload.message_id)
             if len(message.embeds) > 0 and message.embeds[0].title == "Neuer Termin hinzugefügt!":
                 await self.handle_reactions(payload)
+
+
+async def setup(bot: commands.Bot) -> None:
+    await bot.add_cog(Appointments(bot))

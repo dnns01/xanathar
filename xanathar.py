@@ -1,4 +1,5 @@
 import os
+from typing import List
 
 import discord
 from discord.ext import commands
@@ -12,14 +13,32 @@ TOKEN = os.getenv('DISCORD_TOKEN')
 ACTIVITY = os.getenv('DISCORD_ACTIVITY')
 
 intents = discord.Intents.all()
-bot = commands.Bot(command_prefix='!', help_command=None, activity=discord.Game(ACTIVITY), intents=intents)
+help_command = commands.DefaultHelpCommand(dm_help=True)
+extensions = ["cogs.appointments", "cogs.polls"]
 
 
+class Xanathar(commands.Bot):
+    def __init__(
+            self,
+            *args,
+            initial_extensions: List[str],
+            **kwargs,
+    ):
+        super().__init__(*args, **kwargs)
+        self.initial_extensions = initial_extensions
 
-@bot.event
-async def on_ready():
-    print("Client started!")
-    await bot.add_cog(polls.Polls(bot))
-    await bot.add_cog(appointments.Appointments(bot))
+    # async def on_ready(self):
+    #     print("Client started!")
 
+    async def setup_hook(self) -> None:
+        for extension in self.initial_extensions:
+            await self.load_extension(extension)
+
+        guild = discord.Object(id=731078161919377499)
+        self.tree.copy_global_to(guild=guild)
+        await self.tree.sync(guild=guild)
+
+
+bot = Xanathar(command_prefix='!', help_command=help_command, activity=discord.Game(ACTIVITY), intents=intents,
+               initial_extensions=extensions)
 bot.run(TOKEN)
