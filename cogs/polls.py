@@ -11,7 +11,7 @@ class Polls(commands.Cog):
 
     @commands.group(name="poll", pass_context=True, invoke_without_command=True)
     async def cmd_poll(self, ctx, question, *answers):
-        """ Create poll """
+        """ Create a new poll """
 
         await Poll(self.bot, question, list(answers), ctx.author.id).send_poll(ctx)
 
@@ -42,3 +42,7 @@ class Polls(commands.Cog):
                         await poll.delete_poll()
                     else:
                         await poll.close_poll()
+
+
+async def setup(bot: commands.Bot) -> None:
+    await bot.add_cog(Polls(bot))

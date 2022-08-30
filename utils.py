@@ -43,11 +43,3 @@ def date_to_string(date: datetime):
 
 def date_from_string(date: str):
     return datetime.strptime(date, DATE_TIME_FMT)
-
-
-async def files_from_attachments(attachments):
-    files = []
-    for attachment in attachments:
-        files.append(await attachment.to_file(spoiler=attachment.is_spoiler()))
-
-    return files
