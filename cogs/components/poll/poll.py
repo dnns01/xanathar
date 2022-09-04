@@ -2,7 +2,7 @@ import discord
 import emoji
 
 DEFAULT_OPTIONS = ["🇦", "🇧", "🇨", "🇩", "🇪", "🇫", "🇬", "🇭", "🇮", "🇯", "🇰", "🇱", "🇲", "🇳", "🇴", "🇵", "🇶",
-                   "🇷"]
+                   "🇷", "🇸", "🇹"]
 DELETE_POLL = "🗑️"
 CLOSE_POLL = "🛑"
 
@@ -63,7 +63,7 @@ class Poll:
 
         self.options = get_options(self.bot, self.answers)
 
-    async def send_poll(self, channel, result=False, message=None):
+    async def send_poll(self, interaction, result=False, message=None):
         option_ctr = 0
         title = "Umfrage"
         participants = {}
@@ -72,8 +72,8 @@ class Poll:
             title += " Ergebnis"
 
         if len(self.answers) > len(DEFAULT_OPTIONS):
-            await channel.send(
-                f"Fehler beim Erstellen der Umfrage! Es werden nicht mehr als {len(DEFAULT_OPTIONS)} Optionen unterstützt!")
+            await interaction.response.send_message(
+                f"Fehler beim Erstellen der Umfrage! Es werden nicht mehr als {len(DEFAULT_OPTIONS)} Optionen unterstützt!", ephemera=True)
             return
 
         embed = discord.Embed(title=title, description=self.question)
@@ -102,26 +102,7 @@ class Poll:
         if message:
             await message.edit(embed=embed)
         else:
-            message = await channel.send("", embed=embed)
-
-        reactions = []
-        for reaction in message.reactions:
-            reactions.append(reaction.emoji)
-
-        if not result:
-            await message.clear_reaction("🗑️")
-            await message.clear_reaction("🛑")
-
-            for reaction in reactions:
-                if reaction not in self.options:
-                    await message.clear_reaction(reaction)
-
-            for i in range(0, len(self.answers)):
-                if self.options[i] not in reactions:
-                    await message.add_reaction(self.options[i])
-
-            await message.add_reaction("🗑️")
-            await message.add_reaction("🛑")
+            message = await interaction.response.send_message("", embed=embed)
 
     async def close_poll(self):
         await self.send_poll(self.message.channel, result=True)
