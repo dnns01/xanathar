@@ -6,13 +6,15 @@ from discord.ext import commands
 from dotenv import load_dotenv
 
 # .env file is necessary in the same directory, that contains several strings.
+from views import poll_view, appointment_view
+
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
 ACTIVITY = os.getenv('DISCORD_ACTIVITY')
 
 intents = discord.Intents.all()
 help_command = commands.DefaultHelpCommand(dm_help=True)
-extensions = ["cogs.appointments", "cogs.polls"]
+extensions = ["extensions.appointments", "extensions.polls"]
 
 
 class Xanathar(commands.Bot):
