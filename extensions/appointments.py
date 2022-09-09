@@ -96,21 +96,23 @@ class Appointments(commands.GroupCog, name="appointments", description="Handle A
     @app_commands.describe(show_all="Zeige die Liste für alle an.")
     async def cmd_appointments_list(self, interaction: Interaction, show_all: bool = False):
         """ List (and link) all Appointments in the current channel """
+        await interaction.response.defer(ephemeral=not show_all)
 
-        if appointments := Appointment.select(Appointment.channel == interaction.channel_id):
+        appointments = Appointment.select().where(Appointment.channel == interaction.channel_id)
+        if appointments:
             answer = f'Termine dieses Channels:\n'
 
             for appointment in appointments:
                 try:
                     message = await interaction.channel.fetch_message(appointment.message)
-                    answer += f'<t:{appointment.date_time}:F>: {appointment.title} => {message.jump_url}\n'
+                    answer += f'<t:{int(appointment.date_time.timestamp())}:F>: {appointment.title} => ' \
+                              f'{message.jump_url}\n'
                 except errors.NotFound:
                     appointment.delete_instance(recursive=True)
 
-            await interaction.response.send_message(answer, ephemeral=not show_all)
+            await interaction.edit_original_message(content=answer)
         else:
-            await interaction.response.send_message("Für diesen Channel existieren derzeit keine Termine",
-                                                    ephemeral=not show_all)
+            await interaction.edit_original_message(content="Für diesen Channel existieren derzeit keine Termine")
 
 
 async def setup(bot: commands.Bot) -> None:
