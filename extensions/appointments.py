@@ -51,7 +51,8 @@ class Appointments(commands.GroupCog, name="appointments", description="Handle A
                             appointment.delete_instance(recursive=True)
                         else:
                             new_date_time = appointment.date_time + timedelta(days=appointment.recurring)
-                            Appointment.update(reminder_sent=False, date_time=new_date_time).where(
+                            reminder_sent = appointment.reminder == 0
+                            Appointment.update(reminder_sent=reminder_sent, date_time=new_date_time).where(
                                 Appointment.id == appointment.id).execute()
                             updated_appointment = Appointment.get(Appointment.id == appointment.id)
                             new_message = await channel.send(embed=updated_appointment.get_embed(),
@@ -85,7 +86,7 @@ class Appointments(commands.GroupCog, name="appointments", description="Handle A
 
         appointment = Appointment.create(channel=channel.id, message=0, date_time=date_time, reminder=reminder,
                                          title=title, description=description, author=author_id, recurring=recurring,
-                                         reminder_sent=False)
+                                         reminder_sent=reminder == 0)
 
         await interaction.response.send_message(embed=appointment.get_embed(), view=AppointmentView())
         message = await interaction.original_message()
