@@ -18,7 +18,7 @@ class PollView(discord.ui.View):
                                                     f"Abstimmung.)*", view=PollChoiceView(poll, interaction.user),
                                                     ephemeral=True)
 
-    @discord.ui.button(label='Schließen', style=discord.ButtonStyle.red, custom_id='poll_view:close', emoji="🛑")
+    @discord.ui.button(label='Beenden', style=discord.ButtonStyle.gray, custom_id='poll_view:close', emoji="🛑")
     async def close(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.defer(thinking=False)
         poll = Poll.select().where(Poll.message == interaction.message.id)
