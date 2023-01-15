@@ -48,7 +48,7 @@ class AppointmentView(discord.ui.View):
         if appointment:
             appointment = appointment[0]
             await interaction.response.send_message("", file=File(appointment.get_ics_file(),
-                                                                  filename=f"{appointment.title}.ics"), ephemeral=True)
+                                                                  filename=f"{appointment.title}_{appointment.uuid}.ics"), ephemeral=True)
 
     @discord.ui.button(label='Löschen', style=discord.ButtonStyle.gray, custom_id='appointment_view:delete', emoji="🗑")
     async def delete(self, interaction: discord.Interaction, button: discord.ui.Button):
