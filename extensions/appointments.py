@@ -86,7 +86,7 @@ class Appointments(commands.GroupCog, name="appointments", description="Handle A
 
         appointment = Appointment.create(channel=channel.id, message=0, date_time=date_time, reminder=reminder,
                                          title=title, description=description, author=author_id, recurring=recurring,
-                                         reminder_sent=reminder == 0)
+                                         reminder_sent=reminder == 0, uuid=uuid.uuid4())
 
         await interaction.response.send_message(embed=appointment.get_embed(), view=AppointmentView())
         message = await interaction.original_message()
