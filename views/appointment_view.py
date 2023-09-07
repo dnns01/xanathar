@@ -10,9 +10,7 @@ class AppointmentView(discord.ui.View):
 
     @discord.ui.button(label='Zusagen', style=discord.ButtonStyle.green, custom_id='appointment_view:accept', emoji="👍")
     async def accept(self, interaction: discord.Interaction, button: discord.ui.Button):
-        appointment = Appointment.select().where(Appointment.message == interaction.message.id)
-        if appointment:
-            appointment = appointment[0]
+        if appointment := Appointment.get_or_none(Appointment.message == interaction.message.id):
             attendee = appointment.attendees.filter(member_id=interaction.user.id)
             if attendee:
                 await interaction.response.send_message("Du bist bereits Teilnehmerin dieses Termins.",
@@ -26,9 +24,7 @@ class AppointmentView(discord.ui.View):
 
     @discord.ui.button(label='Absagen', style=discord.ButtonStyle.red, custom_id='appointment_view:decline', emoji="👎")
     async def decline(self, interaction: discord.Interaction, button: discord.ui.Button):
-        appointment = Appointment.select().where(Appointment.message == interaction.message.id)
-        if appointment:
-            appointment = appointment[0]
+        if appointment := Appointment.get_or_none(Appointment.message == interaction.message.id):
             attendee = appointment.attendees.filter(member_id=interaction.user.id)
             if attendee:
                 attendee = attendee[0]
@@ -44,18 +40,14 @@ class AppointmentView(discord.ui.View):
     @discord.ui.button(label='Download .ics', style=discord.ButtonStyle.blurple, custom_id='appointment_view:ics',
                        emoji="📅")
     async def ics(self, interaction: discord.Interaction, button: discord.ui.Button):
-        appointment = Appointment.select().where(Appointment.message == interaction.message.id)
-        if appointment:
-            appointment = appointment[0]
+        if appointment := Appointment.get_or_none(Appointment.message == interaction.message.id):
             await interaction.response.send_message("", file=File(appointment.get_ics_file(),
                                                                   filename=f"{appointment.title}_{appointment.uuid}.ics"), ephemeral=True)
 
     @discord.ui.button(label='Löschen', style=discord.ButtonStyle.gray, custom_id='appointment_view:delete', emoji="🗑")
     async def delete(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.defer(thinking=False)
-        appointment = Appointment.select().where(Appointment.message == interaction.message.id)
-        if appointment:
-            appointment = appointment[0]
+        if appointment := Appointment.get_or_none(Appointment.message == interaction.message.id):
             if interaction.user.id == appointment.author:
                 appointment.delete_instance(recursive=True)
                 await interaction.message.delete()

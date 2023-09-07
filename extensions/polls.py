@@ -42,13 +42,13 @@ class Polls(commands.GroupCog, name="poll", description="Handle Polls in Channel
                    choice]
 
         await interaction.response.send_message("Bereite Umfrage vor, bitte warten...", view=PollView())
-        message = await interaction.original_message()
+        message = await interaction.original_response()
         poll = Poll.create(question=question, author=interaction.user.id, channel=interaction.channel_id,
                            message=message.id)
         for choice in choices:
             PollChoice.create(poll_id=poll.id, emoji=choice[0], text=choice[1])
 
-        await interaction.edit_original_message(content="", embed=poll.get_embed(), view=PollView())
+        await interaction.edit_original_response(content="", embed=poll.get_embed(), view=PollView())
 
     def parse_choice(self, idx: int, choice: str):
         choice = choice.strip()

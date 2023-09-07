@@ -9,9 +9,7 @@ class PollView(discord.ui.View):
 
     @discord.ui.button(label='Abstimmen', style=discord.ButtonStyle.green, custom_id='poll_view:vote', emoji="✅")
     async def vote(self, interaction: discord.Interaction, button: discord.ui.Button):
-        poll = Poll.select().where(Poll.message == interaction.message.id)
-        if poll:
-            poll = poll[0]
+        if poll := Poll.get_or_none(Poll.message == interaction.message.id):
             await interaction.response.send_message(f"{poll.question}\n\n*(Nach der Abstimmung kannst du diese Nachricht "
                                                     f"verwerfen. Wenn die Abstimmung nicht funktioniert, bitte verwirf "
                                                     f"die Nachricht und Klicke erneut auf den Abstimmen Button der "
@@ -21,19 +19,15 @@ class PollView(discord.ui.View):
     @discord.ui.button(label='Beenden', style=discord.ButtonStyle.gray, custom_id='poll_view:close', emoji="🛑")
     async def close(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.defer(thinking=False)
-        poll = Poll.select().where(Poll.message == interaction.message.id)
-        if poll:
-            poll = poll[0]
+        if poll := Poll.get_or_none(Poll.message == interaction.message.id):
             if interaction.user.id == poll.author:
                 poll.delete_instance(recursive=True)
-                await interaction.edit_original_message(view=None)
+                await interaction.edit_original_response(view=None)
 
     @discord.ui.button(label='Löschen', style=discord.ButtonStyle.gray, custom_id='poll_view:delete', emoji="🗑")
     async def delete(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.defer(thinking=False)
-        poll = Poll.select().where(Poll.message == interaction.message.id)
-        if poll:
-            poll = poll[0]
+        if poll := Poll.get_or_none(Poll.message == interaction.message.id):
             if interaction.user.id == poll.author:
                 poll.delete_instance(recursive=True)
                 await interaction.message.delete()

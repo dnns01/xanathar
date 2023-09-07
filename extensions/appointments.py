@@ -1,4 +1,5 @@
 import asyncio
+import uuid
 from datetime import datetime, timedelta
 import os
 
@@ -89,7 +90,7 @@ class Appointments(commands.GroupCog, name="appointments", description="Handle A
                                          reminder_sent=reminder == 0, uuid=uuid.uuid4())
 
         await interaction.response.send_message(embed=appointment.get_embed(), view=AppointmentView())
-        message = await interaction.original_message()
+        message = await interaction.original_response()
         Appointment.update(message=message.id).where(Appointment.id == appointment.id).execute()
 
     @app_commands.command(name="list", description="Listet alle Termine dieses Kanals auf.")
@@ -110,9 +111,9 @@ class Appointments(commands.GroupCog, name="appointments", description="Handle A
                 except errors.NotFound:
                     appointment.delete_instance(recursive=True)
 
-            await interaction.edit_original_message(content=answer)
+            await interaction.edit_original_response(content=answer)
         else:
-            await interaction.edit_original_message(content="Für diesen Channel existieren derzeit keine Termine")
+            await interaction.edit_original_response(content="Für diesen Channel existieren derzeit keine Termine")
 
 
 async def setup(bot: commands.Bot) -> None:
