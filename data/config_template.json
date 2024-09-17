@@ -1,0 +1,73 @@
+{
+  "token": "TOKEN",
+  "activity": "Aktivity",
+  "mod_roles": [
+    00,
+    00
+  ],
+  "extensions": {
+    "poll": {},
+    "appointments": {},
+    "welcome": {
+      "greeting_channel": 00,
+      "introduction_channel": 00,
+      "offtopic_channel": 00,
+      "unitalk_channel": 00,
+      "announcement_channel": 00,
+      "uninews_channel": 00,
+      "": ,
+      "greeting_on_join": true,
+      "dm_message": "00",
+      "greeting_messages": [
+        "Willkommen <@{user_id}> auf dem Discordserver 00! :partying_face:",
+        "Hi <@{user_id}>, herzlich willkommen! :hugging:",
+        "Hey <@{user_id}>, hast du Kuchen mitgebracht? :cake:",
+        "Hey <@{user_id}> ist da! :partying_face:",
+        "Moin <@{user_id}> und willkommen!",
+        "Hi <@{user_id}>, bei <id:customize> kannst du dir verschiedene Server-Rollen vergeben :placard:",
+        "Hi <@{user_id}>, bei <id:browse> kannst du deine Kanalliste anpassen: so wird sie genau so lang oder kurz, wie es dir am besten passt :bulb:",
+        "Hey <@{user_id}>, hast du bei <id:browse> schon vorbei geschaut? Dort kannst du auswählen, welche Kanäle für dich sichtbar sind!",
+        "Hi <@{user_id}>, *wusstest du*, dass du mit Rechtsklick Kanäle zu deinen Favoriten hinzufügen kannst? So behälst du alles Wichtige gut im Blick!",
+        "Moin <@{user_id}>, in <#{announcement_channel}>  gibt es immer wieder nützliche Infos :notepad_spiral: Schau gerne vorbei!",
+        "Willkommen <@{user_id}>, hast du den <#{offtopic_channel}>-Kanal schon entdeckt? Dort kann man über alles reden, was nicht studienspezifisch ist :teapot: ",
+        ":wave: <@{user_id}>, erzähl gerne etwas über dich in <#{introduction_channel}>.",
+        "Hallo <@{user_id}>, ich bin der hausgemachte Server-Bot! Mach es dir gemütlich und zögere nicht, mir per privaten Nachricht Fragen zu stellen, wenn du Hilfe vom Support-Team brauchst :love_letter:",
+        "Willkommen <@{user_id}>, stehst du am Anfang des Studiums an der FernUni? Die Ersti-Rollen in <id:customize> und der <#{ersti_channel}> könnten dich interessieren!",
+        "Hey <@{user_id}>! Im Channel <#{unitalk_channel}> kannst du dich mit Kommilitoninnen über Themen rund um das Studium unterhalten :student:"
+      ]
+    },
+    "links": {},
+    "pomodoro": {
+      "default_names": [
+        "Noam Chomsky",
+        "Leonardo da Vinci",
+        "René Descartes",
+        "Hypatia von Alexandria",
+        "Umberto Eco",
+        "Hannah Arendt",
+        "Jane Austen",
+        "Simone de Beauvoir",
+        "Astrid Lindgren",
+        "Clinton Richard Dawkins",
+        "Daniel Kahneman",
+        "Judith Rich Harris",
+        "Aristoteles",
+        "Platon",
+        "Immanuel Kant"
+      ]
+    },
+    "mod_mail": {
+      "channel_id": 00
+    },
+    "text_commands": {
+      "mod_channel": 00
+    },
+    "news":{
+      "url": "00",
+      "channel_id": 00,
+      "news_role": 00,
+      "announcement_text": ":loudspeaker: <@&{news_role}> Neues aus der Fakultät vom {date} :loudspeaker: \n{title} \n{link}"
+    }
+
+  }
+}

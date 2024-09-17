@@ -115,5 +115,6 @@ GitHub.sublime-settings
 !.vscode/extensions.json 
 .history
 
+/data/*.json
 /data/
 /xanathar.db
